@@ -6,7 +6,13 @@ interface EnvConfig {
   PORT: string;
   DB_URL: string;
   NODE_ENV: "development" | "production";
-  // BCRYPT_SALT_ROUND: string;
+
+  jwt_access_secrete: string;
+  jwt_access_expires: string;
+
+  BCRYPT_SALT_ROUND: string;
+  SUPER_ADMIN_EMAIL: string;
+  SUPER_ADMIN_PASSWORD: string;
 }
 
 const loadEnvVariables = (): EnvConfig => {
@@ -14,7 +20,11 @@ const loadEnvVariables = (): EnvConfig => {
     "PORT",
     "DB_URL",
     "NODE_ENV",
-    // "BCRYPT_SALT_ROUND",
+    "jwt_access_secrete",
+    "jwt_access_expires",
+    "BCRYPT_SALT_ROUND",
+    "SUPER_ADMIN_EMAIL",
+    "SUPER_ADMIN_PASSWORD",
   ];
 
   requiredEnvVariables.forEach((key) => {
@@ -28,7 +38,12 @@ const loadEnvVariables = (): EnvConfig => {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     DB_URL: process.env.DB_URL!,
     NODE_ENV: process.env.NODE_ENV as "development" | "production",
-    // BCRYPT_SALT_ROUND: process.env.BCRYPT_SALT_ROUND,
+    jwt_access_secrete: process.env.jwt_access_secrete as string,
+    jwt_access_expires: process.env.jwt_access_expires as string,
+    BCRYPT_SALT_ROUND: process.env.BCRYPT_SALT_ROUND as string,
+
+    SUPER_ADMIN_EMAIL: process.env.SUPER_ADMIN_EMAIL as string,
+    SUPER_ADMIN_PASSWORD: process.env.SUPER_ADMIN_PASSWORD as string,
   };
 };
 
