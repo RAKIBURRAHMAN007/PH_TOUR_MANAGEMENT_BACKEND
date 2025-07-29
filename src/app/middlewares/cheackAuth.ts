@@ -22,6 +22,7 @@ export const checkAuth =
       if (!authRoles.includes(verifiedToken.role)) {
         throw new AppError(403, "you are not permitted to this route");
       }
+      req.user = verifiedToken;
       next();
     } catch (error) {
       console.log(error);
