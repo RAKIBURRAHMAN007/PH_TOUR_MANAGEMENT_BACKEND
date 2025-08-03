@@ -1,4 +1,6 @@
 import passport from "passport";
+import bcryptjs from "bcryptjs";
+
 import {
   Strategy as GoogleStrategy,
   Profile,
@@ -7,7 +9,46 @@ import {
 import { envVars } from "./env";
 import { User } from "../modules/user/user.model";
 import { Role } from "../modules/user/user.interface";
+import { Strategy as LocalStrategy } from "passport-local";
 
+import httpStatus from "http-status-codes";
+passport.use(
+  new LocalStrategy(
+    {
+      usernameField: "email",
+      passwordField: "password",
+    },
+    async (email: string, password: string, done) => {
+      try {
+        const isUserExist = await User.findOne({ email });
+
+        if (!isUserExist) {
+          return done(null, false, { message: "user doesn't exist" });
+        }
+        const isGoogleAuthenticated = isUserExist.auths.some(
+          (providerObjects) => providerObjects.provider === "google"
+        );
+        if (isGoogleAuthenticated && !isUserExist.password) {
+          return done(null, false, {
+            message:
+              "you hav authenticated through google , so login with google or set a password after login with google",
+          });
+        }
+        const isPasswordMatch = await bcryptjs.compare(
+          password as string,
+          isUserExist.password as string
+        );
+        if (!isPasswordMatch) {
+          done(null, false, { message: "password doesn't matched" });
+        }
+        return done(null, isUserExist);
+      } catch (error) {
+        console.log(error);
+        done(error);
+      }
+    }
+  )
+);
 passport.use(
   new GoogleStrategy(
     {
@@ -49,6 +90,7 @@ passport.use(
     }
   )
 );
+
 passport.serializeUser((user: any, done: (err: any, id?: unknown) => void) => {
   done(null, user._id);
 });
