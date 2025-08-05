@@ -1,6 +1,9 @@
+import { Query } from "mongoose";
+import { excludedField } from "../../utils/constant";
 import { tourSearchableField } from "./tour.constant";
 import { ITour, ITourType } from "./tour.interface";
 import { Tour, TourType } from "./tour.model";
+import { QueryBuilder } from "../../utils/queryBuilder";
 
 const createTour = async (payload: ITour) => {
   const existingTour = await Tour.findOne({ title: payload.title });
@@ -91,17 +94,25 @@ const createTour = async (payload: ITour) => {
 // };
 
 const getAllTours = async (query: Record<string, string>) => {
-  const filter = query;
-  const searchTerm = query.searchTerm || "";
-  delete filter["searchTerm"];
-  const searchQuery = {
-    $or: tourSearchableField.map((field) => ({
-      [field]: { $regex: searchTerm, $options: "i" },
-    })),
-  };
-  const data = await Tour.find(searchQuery).find(filter);
+  const queryBuilder = new QueryBuilder(Tour.find(), query);
+
+  const tours = await queryBuilder
+    .search(tourSearchableField)
+    .filter()
+    .sort()
+    .fields()
+    .paginate();
+
+  // const meta = await queryBuilder.getMeta()
+
+  const [data, meta] = await Promise.all([
+    tours.build(),
+    queryBuilder.getMeta(),
+  ]);
+
   return {
     data,
+    meta,
   };
 };
 
