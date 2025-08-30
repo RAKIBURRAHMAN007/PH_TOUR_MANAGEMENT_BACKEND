@@ -32,7 +32,12 @@ const credentialsLogin = catchAsync(
         message: "user login  successfully",
         success: true,
         statusCode: httpStatus.OK,
-        data: rest,
+
+        data: {
+          accessToken: userTokens.accessToken,
+          refreshToken: userTokens.refreshToken,
+          user: rest,
+        },
       });
     })(req, res, next);
   }
